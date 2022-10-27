@@ -41,6 +41,7 @@ namespace StarterAssets
 
 		public void OnSprint(InputValue value)
 		{
+			Debug.Log(value.isPressed);
 			SprintInput(value.isPressed);
 		}
 #endif
