@@ -2,7 +2,7 @@ using UnityEngine.InputSystem;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
-public class Avater_Controller : MonoBehaviour
+public class Test_1DBlend : MonoBehaviour
 {
     [SerializeField] private float acceleration = .1f;
     [SerializeField] private float deceleration = .5f;
@@ -10,12 +10,12 @@ public class Avater_Controller : MonoBehaviour
     private bool isAcceleration = false;
 
     private int velocityHash = 0;
-    private float avater_velocity = 0f;
-    private Animator avater_animator = null;
+    private float avatar_velocity = 0f;
+    private Animator avatar_animator = null;
 
     private void Start()
     {
-        avater_animator = GetComponent<Animator>();
+        avatar_animator = GetComponent<Animator>();
 
         velocityHash = Animator.StringToHash("Velocity");
     }
@@ -24,14 +24,14 @@ public class Avater_Controller : MonoBehaviour
     {
         if (isAcceleration)
         {
-            avater_velocity = Mathf.Clamp01(avater_velocity + Time.deltaTime * acceleration);
+            avatar_velocity = Mathf.Clamp01(avatar_velocity + Time.deltaTime * acceleration);
         }
         else
         {
-            avater_velocity = Mathf.Clamp01(avater_velocity - Time.deltaTime * deceleration);
+            avatar_velocity = Mathf.Clamp01(avatar_velocity - Time.deltaTime * deceleration);
         }
 
-        avater_animator.SetFloat(velocityHash, avater_velocity);
+        avatar_animator.SetFloat(velocityHash, avatar_velocity);
     }
 
     public void OnMove(InputValue value)
