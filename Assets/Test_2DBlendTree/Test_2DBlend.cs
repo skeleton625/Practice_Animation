@@ -12,9 +12,9 @@ public class Test_2DBlend : MonoBehaviour
     private Animator avatar_Animator = null;
 
     private bool forwardMoving = false;
+    private bool backwardMoving = false;
     private bool leftsideMoving = false;
     private bool rightsideMoving = false;
-    private bool isBoosting = false;
     private bool boostSwitching = false;
 
     private int velocityHash_X = 0;
@@ -38,15 +38,33 @@ public class Test_2DBlend : MonoBehaviour
     private void Update()
     {
         if (forwardMoving && velocity_z < currentMaxVelocity) velocity_z += Time.deltaTime * Acceleration;
-        if (!forwardMoving && velocity_z > 0) velocity_z -= Time.deltaTime * Deceleration;
+        if (backwardMoving && velocity_z > -.5f) velocity_z -= Time.deltaTime * Acceleration;
 
-        if (leftsideMoving && velocity_x > -currentMaxVelocity) velocity_x -= Time.deltaTime * Acceleration;
+        if (backwardMoving)
+        {
+            if (rightsideMoving)
+            {
+                if (velocity_x < .5f) velocity_x += Time.deltaTime * Acceleration;
+                else velocity_x -= Time.deltaTime * Acceleration;
+            }
+            if (leftsideMoving)
+            {
+                if (velocity_x > -.5f) velocity_x -= Time.deltaTime * Acceleration;
+                else velocity_x += Time.deltaTime * Acceleration;
+            }
+        }
+        else
+        {
+            if (rightsideMoving && velocity_x < currentMaxVelocity) velocity_x += Time.deltaTime * Acceleration;
+            if (leftsideMoving && velocity_x > -currentMaxVelocity) velocity_x -= Time.deltaTime * Acceleration;
+        }
+
+        if (!forwardMoving && velocity_z > 0) velocity_z -= Time.deltaTime * Deceleration;
+        if (!backwardMoving && velocity_z < 0) velocity_z += Time.deltaTime * Deceleration;
+        if (!rightsideMoving && velocity_x > 0) velocity_x -= Time.deltaTime * Deceleration;
         if (!leftsideMoving && velocity_x < 0) velocity_x += Time.deltaTime * Deceleration;
 
-        if (rightsideMoving && velocity_x < currentMaxVelocity) velocity_x += Time.deltaTime * Acceleration;
-        if (!rightsideMoving && velocity_x > 0) velocity_x -= Time.deltaTime * Deceleration;
-
-        if (boostSwitching)
+        if (boostSwitching && !backwardMoving)
         {
             if (forwardMoving)
             {
@@ -73,9 +91,10 @@ public class Test_2DBlend : MonoBehaviour
     {
         inputVector = value.Get<Vector2>();
 
+        forwardMoving = inputVector.y > 0;
+        backwardMoving = inputVector.y < 0;
         rightsideMoving = inputVector.x > 0;
         leftsideMoving = inputVector.x < 0;
-        forwardMoving = inputVector.y > 0;
     }
 
     public void OnBoost(InputValue value)
