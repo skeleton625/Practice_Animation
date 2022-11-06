@@ -1,15 +1,18 @@
 using UnityEngine.InputSystem;
 using UnityEngine;
 
-[RequireComponent(typeof(Animator))]
 public class Test_2DBlend : MonoBehaviour
 {
+    [Header("Controller Components")]
+    [SerializeField] private Animator avatar_Animator = null;
+    [SerializeField] private Rigidbody avatar_Rigidbody = null;
+
+    [Header("Controller Velocity")]
+    [SerializeField] private float MovementScale = 10f;
     [SerializeField] private float Acceleration = .1f;
     [SerializeField] private float Deceleration = .5f;
     [SerializeField] private float WalkMaxVelocity = .5f;
     [SerializeField] private float RunMaxVelocity = 2f;
-
-    private Animator avatar_Animator = null;
 
     private bool forwardMoving = false;
     private bool backwardMoving = false;
@@ -21,14 +24,11 @@ public class Test_2DBlend : MonoBehaviour
     private int velocityHash_Z = 0;
 
     private float currentMaxVelocity = 0f;
-    private float velocity_x = 0f;
-    private float velocity_z = 0f;
     private Vector2 inputVector = Vector2.zero;
+    private Vector3 velocity_value = Vector3.zero;
 
     private void Start()
     {
-        avatar_Animator = GetComponent<Animator>();
-
         velocityHash_X = Animator.StringToHash("Velocity_X");
         velocityHash_Z = Animator.StringToHash("Velocity_Z");
 
@@ -37,54 +37,55 @@ public class Test_2DBlend : MonoBehaviour
 
     private void Update()
     {
-        if (forwardMoving && velocity_z < currentMaxVelocity) velocity_z += Time.deltaTime * Acceleration;
-        if (backwardMoving && velocity_z > -.5f) velocity_z -= Time.deltaTime * Acceleration;
+        if (forwardMoving && velocity_value.z < currentMaxVelocity) velocity_value.z += Time.deltaTime * Acceleration;
+        if (backwardMoving && velocity_value .z > -.5f) velocity_value.z -= Time.deltaTime * Acceleration;
 
         if (backwardMoving)
         {
             if (rightsideMoving)
             {
-                if (velocity_x < .5f) velocity_x += Time.deltaTime * Acceleration;
-                else velocity_x -= Time.deltaTime * Acceleration;
+                if (velocity_value.x < .5f) velocity_value.x += Time.deltaTime * Acceleration;
+                else velocity_value.x -= Time.deltaTime * Acceleration;
             }
             if (leftsideMoving)
             {
-                if (velocity_x > -.5f) velocity_x -= Time.deltaTime * Acceleration;
-                else velocity_x += Time.deltaTime * Acceleration;
+                if (velocity_value.x > -.5f) velocity_value.x -= Time.deltaTime * Acceleration;
+                else velocity_value.x += Time.deltaTime * Acceleration;
             }
         }
         else
         {
-            if (rightsideMoving && velocity_x < currentMaxVelocity) velocity_x += Time.deltaTime * Acceleration;
-            if (leftsideMoving && velocity_x > -currentMaxVelocity) velocity_x -= Time.deltaTime * Acceleration;
+            if (rightsideMoving && velocity_value.x < currentMaxVelocity) velocity_value.x += Time.deltaTime * Acceleration;
+            if (leftsideMoving && velocity_value.x > -currentMaxVelocity) velocity_value.x -= Time.deltaTime * Acceleration;
         }
 
-        if (!forwardMoving && velocity_z > 0) velocity_z -= Time.deltaTime * Deceleration;
-        if (!backwardMoving && velocity_z < 0) velocity_z += Time.deltaTime * Deceleration;
-        if (!rightsideMoving && velocity_x > 0) velocity_x -= Time.deltaTime * Deceleration;
-        if (!leftsideMoving && velocity_x < 0) velocity_x += Time.deltaTime * Deceleration;
+        if (!forwardMoving && velocity_value.z > 0) velocity_value.z -= Time.deltaTime * Deceleration;
+        if (!backwardMoving && velocity_value.z < 0) velocity_value.z += Time.deltaTime * Deceleration;
+        if (!rightsideMoving && velocity_value.x > 0) velocity_value.x -= Time.deltaTime * Deceleration;
+        if (!leftsideMoving && velocity_value.x < 0) velocity_value.x += Time.deltaTime * Deceleration;
 
         if (boostSwitching && !backwardMoving)
         {
             if (forwardMoving)
             {
-                if (velocity_z > currentMaxVelocity) velocity_z -= Time.deltaTime * Deceleration;
+                if (velocity_value.z > currentMaxVelocity) velocity_value.z -= Time.deltaTime * Deceleration;
                 else boostSwitching = false;
             }
             if (leftsideMoving)
             {
-                if (velocity_x < -currentMaxVelocity) velocity_x += Time.deltaTime * Deceleration;
+                if (velocity_value.x < -currentMaxVelocity) velocity_value.x += Time.deltaTime * Deceleration;
                 else boostSwitching = false;
             }
             if (rightsideMoving)
             {
-                if (velocity_x > currentMaxVelocity) velocity_x -= Time.deltaTime * Deceleration;
+                if (velocity_value.x > currentMaxVelocity) velocity_value.x -= Time.deltaTime * Deceleration;
                 else boostSwitching = false;
             }
         }
 
-        avatar_Animator.SetFloat(velocityHash_X, velocity_x);
-        avatar_Animator.SetFloat(velocityHash_Z, velocity_z);
+        avatar_Rigidbody.velocity = velocity_value * MovementScale;
+        avatar_Animator.SetFloat(velocityHash_X, velocity_value.x);
+        avatar_Animator.SetFloat(velocityHash_Z, velocity_value.z);
     }
 
     public void OnMove(InputValue value)
@@ -93,6 +94,7 @@ public class Test_2DBlend : MonoBehaviour
 
         forwardMoving = inputVector.y > 0;
         backwardMoving = inputVector.y < 0;
+
         rightsideMoving = inputVector.x > 0;
         leftsideMoving = inputVector.x < 0;
     }
