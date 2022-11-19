@@ -2,7 +2,7 @@
     "name": "Test_2DBlend",
     "maps": [
         {
-            "name": "Player",
+            "name": "Character",
             "id": "0974bb14-2ee9-4dbf-a71b-1674ded3900c",
             "actions": [
                 {
@@ -132,6 +132,34 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Boost",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Camera",
+            "id": "15d9a9bb-72a9-49bd-aa81-1c186620ba35",
+            "actions": [
+                {
+                    "name": "Rotate",
+                    "type": "Value",
+                    "id": "f65b0fad-926f-43a0-9739-49456aa4ca34",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "fbff32e1-b5a6-42ca-9ab6-8cae44588d77",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Rotate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -1,13 +1,20 @@
 using UnityEngine.InputSystem;
 using UnityEngine;
+using InputContext = UnityEngine.InputSystem.InputAction.CallbackContext;
 
 public class Test_2DBlend : MonoBehaviour
 {
+    [Header("Input System Components")]
+    [SerializeField] private PlayerInput avatar_MoveInput = null;
+    [SerializeField] private PlayerInput avatar_RotateInput = null;
+
     [Header("Controller Components")]
+    [SerializeField] private Transform avatar_CameraBody = null;
     [SerializeField] private Animator avatar_Animator = null;
     [SerializeField] private Rigidbody avatar_Rigidbody = null;
 
     [Header("Controller Velocity")]
+    [SerializeField] private float RotateScale = 10f;
     [SerializeField] private float MovementScale = 10f;
     [SerializeField] private float Acceleration = .1f;
     [SerializeField] private float Deceleration = .5f;
@@ -24,8 +31,10 @@ public class Test_2DBlend : MonoBehaviour
     private int velocityHash_Z = 0;
 
     private float currentMaxVelocity = 0f;
-    private Vector2 inputVector = Vector2.zero;
+    private Vector2 moveVector = Vector2.zero;
+    private Vector2 rotateVector = Vector2.zero;
     private Vector3 velocity_value = Vector3.zero;
+    private Vector3 cameraRotation = Vector3.zero;
 
     private void Start()
     {
@@ -33,10 +42,19 @@ public class Test_2DBlend : MonoBehaviour
         velocityHash_Z = Animator.StringToHash("Velocity_Z");
 
         currentMaxVelocity = WalkMaxVelocity;
+
+        moveVector = Vector2.zero;
+        rotateVector = Vector2.zero;
+        velocity_value = Vector3.zero;
+        cameraRotation = Vector3.zero;
+
+        avatar_MoveInput.enabled = true;
+        avatar_RotateInput.enabled = true;
     }
 
     private void Update()
     {
+        // MOVEMENT
         if (forwardMoving && velocity_value.z < currentMaxVelocity) velocity_value.z += Time.deltaTime * Acceleration;
         if (backwardMoving && velocity_value .z > -.5f) velocity_value.z -= Time.deltaTime * Acceleration;
 
@@ -83,26 +101,35 @@ public class Test_2DBlend : MonoBehaviour
             }
         }
 
+        // ROTATE
+        cameraRotation.y = Mathf.Repeat(cameraRotation.y + rotateVector.y * Time.deltaTime * RotateScale, 360);
+
         avatar_Rigidbody.velocity = velocity_value * MovementScale;
+        avatar_CameraBody.rotation = Quaternion.Euler(0, cameraRotation.y, 0);
         avatar_Animator.SetFloat(velocityHash_X, velocity_value.x);
         avatar_Animator.SetFloat(velocityHash_Z, velocity_value.z);
     }
 
     public void OnMove(InputValue value)
     {
-        inputVector = value.Get<Vector2>();
+        moveVector = value.Get<Vector2>();
 
-        forwardMoving = inputVector.y > 0;
-        backwardMoving = inputVector.y < 0;
+        forwardMoving = moveVector.y > 0;
+        backwardMoving = moveVector.y < 0;
 
-        rightsideMoving = inputVector.x > 0;
-        leftsideMoving = inputVector.x < 0;
+        rightsideMoving = moveVector.x > 0;
+        leftsideMoving = moveVector.x < 0;
+    }
+
+    public void OnRotate(InputContext value)
+    {
+        var vector = value.ReadValue<Vector2>();
+        rotateVector.x = -vector.y;
+        rotateVector.y = vector.x;
     }
 
     public void OnBoost(InputValue value)
     {
-        Debug.Log(value.isPressed);
-
         if (value.isPressed)
         {
             currentMaxVelocity = RunMaxVelocity;
