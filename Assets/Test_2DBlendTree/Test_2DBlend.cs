@@ -9,9 +9,10 @@ public class Test_2DBlend : MonoBehaviour
     [SerializeField] private PlayerInput avatar_RotateInput = null;
 
     [Header("Controller Components")]
-    [SerializeField] private Transform avatar_CameraBody = null;
     [SerializeField] private Animator avatar_Animator = null;
     [SerializeField] private Rigidbody avatar_Rigidbody = null;
+    [SerializeField] private Transform avatar_CharBody = null;
+    [SerializeField] private Transform avatar_CameraBody = null;
 
     [Header("Controller Velocity")]
     [SerializeField] private float RotateScale = 10f;
@@ -21,6 +22,7 @@ public class Test_2DBlend : MonoBehaviour
     [SerializeField] private float WalkMaxVelocity = .5f;
     [SerializeField] private float RunMaxVelocity = 2f;
 
+    private bool IsMoving = false;
     private bool forwardMoving = false;
     private bool backwardMoving = false;
     private bool leftsideMoving = false;
@@ -104,8 +106,11 @@ public class Test_2DBlend : MonoBehaviour
         // ROTATE
         cameraRotation.y = Mathf.Repeat(cameraRotation.y + rotateVector.y * Time.deltaTime * RotateScale, 360);
 
-        avatar_Rigidbody.velocity = velocity_value * MovementScale;
+        var velocity = avatar_CameraBody.forward * velocity_value.z + avatar_CameraBody.right * velocity_value.x;
+        if (IsMoving) avatar_CharBody.rotation = Quaternion.Euler(0, cameraRotation.y, 0);
         avatar_CameraBody.rotation = Quaternion.Euler(0, cameraRotation.y, 0);
+        avatar_Rigidbody.velocity = velocity * MovementScale;
+
         avatar_Animator.SetFloat(velocityHash_X, velocity_value.x);
         avatar_Animator.SetFloat(velocityHash_Z, velocity_value.z);
     }
@@ -113,6 +118,7 @@ public class Test_2DBlend : MonoBehaviour
     public void OnMove(InputValue value)
     {
         moveVector = value.Get<Vector2>();
+        IsMoving = !moveVector.Equals(Vector2.zero);
 
         forwardMoving = moveVector.y > 0;
         backwardMoving = moveVector.y < 0;

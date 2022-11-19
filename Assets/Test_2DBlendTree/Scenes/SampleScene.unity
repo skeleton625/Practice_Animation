@@ -204,9 +204,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   avatar_MoveInput: {fileID: 63319756}
   avatar_RotateInput: {fileID: 237713045}
-  avatar_CameraBody: {fileID: 237713044}
   avatar_Animator: {fileID: 1362470928}
   avatar_Rigidbody: {fileID: 63319759}
+  avatar_CharBody: {fileID: 63319755}
+  avatar_CameraBody: {fileID: 237713044}
   RotateScale: 30
   MovementScale: 6
   Acceleration: 4
